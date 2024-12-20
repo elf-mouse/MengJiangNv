@@ -94,15 +94,23 @@
 
 主要增加reality协议默认支持 CF vless/trojan 节点的proxyip以及非标端口的优选反代IP功能
 
-详细设置教程，请点击[Serv00最全面的代理脚本](https://youtu.be/2VF9D6z2z7w)
+详细设置视频教程，请点击[Serv00最全面的代理脚本](https://youtu.be/2VF9D6z2z7w)
 
-Serv00专用一键脚本：
+Serv00专用一键脚本(默认自动安装进程保活)：
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/serv00_proxyip.sh)
 ```
 脚本界面预览图：
 
-![0bfd865cba72ccda1b3f34c7ee89fe9](https://github.com/user-attachments/assets/f0238a99-1ecc-45ae-bf34-b1b6153286f3)
+![1a215abda2dd54d1042e8d3e61979b1](https://github.com/user-attachments/assets/cc28a80b-7cee-41b8-98c1-1d64cb0b1013)
+
+
+多账号进程保活脚本已支持，把kp.sh文件放到第三方VPS服务器，修改里面的参数即可定时自动运行保活节点
+
+Serv00保活脚本(VPS专用，不可用在serv00上)，默认nano编辑形式，参数添加完毕运行```bash kp.sh```即可
+```
+curl -sSL https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/kp.sh -o kp.sh && chmod +x kp.sh && nano kp.sh
+```
 
 ### 2、VPS专用：
 
@@ -257,7 +265,7 @@ CF Trojan：在网页地址栏输入 https:// workers域名 或者 pages域名 �
 -------------------------------------------------------------
 ### 脚本1：CF-优选官方IP (默认美、亚、欧三地区 强烈推荐！！！)，安卓苹果手机平板专用：
 ```
-curl -sSL https://ghp.ci/https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/cf/cf.sh -o cf.sh && chmod +x cf.sh && bash cf.sh
+curl -sSL https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/cf/cf.sh -o cf.sh && chmod +x cf.sh && bash cf.sh
 ```
 -------------------------------------------------------------
 
