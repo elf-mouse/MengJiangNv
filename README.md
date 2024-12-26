@@ -1,14 +1,16 @@
 # Cloudflare-workers/pages代理脚本
-### 本项目仅支持本地化部署
-### 本项目配置都为本地化编辑，不使用订阅器、订阅转换等第三方外链引用，无需担心节点订阅被外链作者查看
+### 1、本项目仅支持本地化部署
+### 2、本项目配置都为本地化编辑，不使用订阅器、订阅转换等第三方外链引用
+### 3、无需担心节点订阅信息被订阅器作者或者订阅转换作者后台查看
 --------------------------------
 ## 脚本特色：
-#### 懒人小白专用！默认节点都为CF官方IP，无需频繁更新订阅获取客户端优选IP
-#### 为减少新手小白额外的成本，本项目不推荐使用自定义域名，如果你一定要用自定义域名，也可以
-#### Workers方式：支持vless+ws+tls、trojan+ws+tls、vless+ws、trojan+ws代理节点
-#### Pages方式：支持vless+ws+tls、trojan+ws+tls代理节点
-#### 支持单节点链接、聚合通用节点订阅、sing-box节点订阅、clash节点订阅
-#### 虽然仅乱码混淆版可用，但只有修改uuid/密码时才必须使用变量
+#### 1、懒人小白专用！默认节点都为CF官方IP，无需频繁更新订阅获取客户端优选IP
+#### 2、为减少新手小白额外的成本，本项目不推荐使用自定义域名，如果你一定要用自定义域名，也可以
+#### 3、当在CF点击部署按钮后，可直接手搓节点或者使用分享链接，最多设置一个uuid/密码，其他不用改
+#### 4、Workers方式：支持vless+ws+tls、trojan+ws+tls、vless+ws、trojan+ws代理节点
+#### 5、Pages方式：支持vless+ws+tls、trojan+ws+tls代理节点
+#### 6、支持单节点链接、聚合通用节点链接、聚合通用节点订阅、sing-box节点订阅、clash节点订阅
+#### 7、虽然仅乱码混淆版可用，但只有修改uuid/密码时才必须使用变量
 -------------------------------------------------------------
 
 ### 交流平台：[甬哥博客地址](https://ygkkk.blogspot.com)、[甬哥YouTube频道](https://www.youtube.com/@ygkkk)、[甬哥TG电报群组](https://t.me/+jZHc6-A-1QQ5ZGVl)、[甬哥TG电报频道](https://t.me/+DkC9ZZUgEFQzMTZl)
@@ -96,7 +98,7 @@
 
 详细设置视频教程，请点击[Serv00最全面的代理脚本](https://youtu.be/2VF9D6z2z7w)
 
-Serv00专用一键脚本(默认自动安装进程保活)：
+Serv00专用一键脚本 (默认自动安装进程保活)：
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/serv00_proxyip.sh)
 ```
@@ -105,12 +107,14 @@ bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_tro
 ![1a215abda2dd54d1042e8d3e61979b1](https://github.com/user-attachments/assets/cc28a80b-7cee-41b8-98c1-1d64cb0b1013)
 
 
-多账号进程保活脚本已支持，把kp.sh文件放到第三方VPS服务器，修改里面的参数即可定时自动运行保活节点
+Serv00多账号进程保活脚本仅支持第三方VPS服务器，修改kp.sh文件的参数即可定时自动保活单个或多个Serv00账号的节点
 
-Serv00保活脚本(VPS专用，不可用在serv00上)，默认nano编辑形式，参数添加完毕运行```bash kp.sh```即可
+Serv00保活自动下载脚本如下，VPS专用，不可用在serv00上，默认nano编辑形式，你也可以手动放在root目录
 ```
 curl -sSL https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/kp.sh -o kp.sh && chmod +x kp.sh && nano kp.sh
 ```
+最后运行```bash kp.sh```即可 
+
 
 ### 2、VPS专用：
 
@@ -119,6 +123,7 @@ curl -sSL https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/ma
 搭建proxyip与反代ip的脚本推荐：[x-ui-yg脚本](https://github.com/yonggekkk/x-ui-yg)、[sing-box-yg脚本](https://github.com/yonggekkk/sing-box-yg)
 
 相关操作请看[视频教程高阶1](https://youtu.be/QOnMVULADko)、[视频教程高阶2](https://youtu.be/CVZStM0t8BA)
+
 
 ### 3、可现实以下四种情况(推荐在TLS节点环境下)：
 
@@ -130,7 +135,7 @@ curl -sSL https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/ma
 
 可选择现实4：通过在VPS安装WARP全局双栈V4+V6功能，即访问非CF网站的客户端优选IP的落地IP（104.28……/2a09:……）现实固定，或访问CF网站的proxyip的落地IP（104.28……/2a09:……）现实WARP解锁功能效果
 
----------------------------------
+-------------------------------------------
 
 ## 五：查看配置信息与分享链接
 

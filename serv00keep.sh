@@ -26,27 +26,27 @@ export reym=${reym:-'www.speedtest.net'}
 
 [[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="domains/${USERNAME}.ct8.pl/logs" || WORKDIR="domains/${USERNAME}.serv00.net/logs"
 [ -d "$WORKDIR" ] || (mkdir -p "$WORKDIR" && chmod 777 "$WORKDIR")
-ps aux | grep $(whoami) | grep -v "sshd\|bash\|grep" | awk '{print $2}' | xargs -r kill -9 > /dev/null 2>&1
+#ps aux | grep $(whoami) | grep -v "sshd\|bash\|grep" | awk '{print $2}' | xargs -r kill -9 > /dev/null 2>&1
 
 read_ip(){
 nb=$(echo "$HOSTNAME" | cut -d '.' -f 1 | tr -d 's')
-ym=("cache$nb.serv00.com" "$HOSTNAME" "web$nb.serv00.com")
-rm -rf $WORKDIR/ip.txt
+ym=("$HOSTNAME" "cache$nb.serv00.com" "web$nb.serv00.com")
+rm -rf ip.txt
 for ym in "${ym[@]}"; do
 # 引用frankiejun API
 response=$(curl -s "https://ss.botai.us.kg/api/getip?host=$ym")
 if [[ -z "$response" ]]; then
 for ip in "${ym[@]}"; do
-dig @8.8.8.8 +time=2 +short $ip >> $WORKDIR/ip.txt
+dig @8.8.8.8 +time=2 +short $ip >> ip.txt
 sleep 1  
 done
 break
 else
 echo "$response" | while IFS='|' read -r ip status; do
 if [[ $status == "Accessible" ]]; then
-echo "$ip: 可用"  >> $WORKDIR/ip.txt
+echo "$ip: 可用"  >> ip.txt
 else
-echo "$ip: 被墙 (Argo与CDN回源节点、proxyip依旧有效)"  >> $WORKDIR/ip.txt
+echo "$ip: 被墙 (Argo与CDN回源节点、proxyip依旧有效)"  >> ip.txt
 fi	
 done
 fi
@@ -148,40 +148,6 @@ openssl req -new -x509 -days 3650 -key "private.key" -out "cert.pem" -subj "/CN=
     "level": "info",
     "timestamp": true
   },
-  "dns": {
-    "servers": [
-      {
-        "tag": "google",
-        "address": "tls://8.8.8.8",
-        "strategy": "ipv4_only",
-        "detour": "direct"
-      }
-    ],
-    "rules": [
-      {
-        "rule_set": [
-          "geosite-openai"
-        ],
-        "server": "wireguard"
-      },
-      {
-        "rule_set": [
-          "geosite-netflix"
-        ],
-        "server": "wireguard"
-      },
-      {
-        "rule_set": [
-          "geosite-category-ads-all"
-        ],
-        "server": "block"
-      }
-    ],
-    "final": "google",
-    "strategy": "",
-    "disable_cache": false,
-    "disable_expire": false
-  },
     "inbounds": [
     {
        "tag": "hysteria-in",
@@ -193,7 +159,8 @@ openssl req -new -x509 -days 3650 -key "private.key" -out "cert.pem" -subj "/CN=
              "password": "$UUID"
          }
      ],
-     "masquerade": "https://bing.com",
+     "masquerade": "https://www.bing.com",
+     "ignore_client_bandwidth":false,
      "tls": {
          "enabled": true,
          "alpn": [
@@ -206,7 +173,7 @@ openssl req -new -x509 -days 3650 -key "private.key" -out "cert.pem" -subj "/CN=
     {
         "tag": "vless-reality-vesion",
         "type": "vless",
-        "listen": "$IP",
+        "listen": "::",
         "listen_port": $vless_port,
         "users": [
             {
@@ -255,130 +222,78 @@ openssl req -new -x509 -days 3650 -key "private.key" -out "cert.pem" -subj "/CN=
     {
       "type": "block",
       "tag": "block"
-    },
-    {
-      "type": "dns",
-      "tag": "dns-out"
-    },
-    {
-      "type": "wireguard",
-      "tag": "wireguard-out",
-      "server": "162.159.195.100",
-      "server_port": 4500,
-      "local_address": [
-        "172.16.0.2/32",
-        "2606:4700:110:83c7:b31f:5858:b3a8:c6b1/128"
-      ],
-      "private_key": "mPZo+V9qlrMGCZ7+E6z2NI6NOV34PD++TpAR09PtCWI=",
-      "peer_public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
-      "reserved": [
-        26,
-        21,
-        228
-      ]
     }
-  ],
-  "route": {
-    "rules": [
-      {
-        "protocol": "dns",
-        "outbound": "dns-out"
-      },
-      {
-        "ip_is_private": true,
-        "outbound": "direct"
-      },
-      {
-        "rule_set": [
-          "geosite-openai"
-        ],
-        "outbound": "wireguard-out"
-      },
-      {
-        "rule_set": [
-          "geosite-netflix"
-        ],
-        "outbound": "wireguard-out"
-      },
-      {
-        "rule_set": [
-          "geosite-category-ads-all"
-        ],
-        "outbound": "block"
-      }
-    ],
-    "rule_set": [
-      {
-        "tag": "geosite-netflix",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-netflix.srs",
-        "download_detour": "direct"
-      },
-      {
-        "tag": "geosite-openai",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/openai.srs",
-        "download_detour": "direct"
-      },      
-      {
-        "tag": "geosite-category-ads-all",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs",
-        "download_detour": "direct"
-      }
-    ],
-    "final": "direct"
-   },
-   "experimental": {
-      "cache_file": {
-      "path": "cache.db",
-      "cache_id": "mycacheid",
-      "store_fakeip": true
-    }
-  }
+ ]
 }
 EOF
 
+if ! ps aux | grep '[c]onfig' > /dev/null; then
+ps aux | grep '[c]onfig' | awk '{print $2}' | xargs -r kill -9 > /dev/null 2>&1
 if [ -e "$(basename ${FILE_MAP[web]})" ]; then
     nohup ./"$(basename ${FILE_MAP[web]})" run -c config.json >/dev/null 2>&1 &
+    sleep 5
+if pgrep -x "$(basename ${FILE_MAP[web]})" > /dev/null; then
+    green "$(basename ${FILE_MAP[web]}) 主进程已启动"
+else
+    red "$(basename ${FILE_MAP[web]}) 主进程未启动, 重启中..."
+    pkill -x "$(basename ${FILE_MAP[web]})"
+    nohup ./"$(basename ${FILE_MAP[web]})" run -c config.json >/dev/null 2>&1 &
     sleep 2
-    pgrep -x "$(basename ${FILE_MAP[web]})" > /dev/null && green "$(basename ${FILE_MAP[web]}) is running" || { red "$(basename ${FILE_MAP[web]}) is not running, restarting..."; pkill -x "$(basename ${FILE_MAP[web]})" && nohup ./"$(basename ${FILE_MAP[web]})" run -c config.json >/dev/null 2>&1 & sleep 2; purple "$(basename ${FILE_MAP[web]}) restarted"; }
+    purple "$(basename ${FILE_MAP[web]}) 主进程已重启"
 fi
-
+fi
+else
+green "主进程已启动"
+fi
+cfgo() {
 if [ -e "$(basename ${FILE_MAP[bot]})" ]; then
+    rm -rf boot.log
     if [[ $ARGO_AUTH =~ ^[A-Z0-9a-z=]{120,250}$ ]]; then
       args="tunnel --edge-ip-version auto --no-autoupdate --protocol http2 run --token ${ARGO_AUTH}"
     elif [[ $ARGO_AUTH =~ TunnelSecret ]]; then
       args="tunnel --edge-ip-version auto --config tunnel.yml run"
     else
-      args="tunnel --edge-ip-version auto --no-autoupdate --protocol http2 --logfile boot.log --loglevel info --url http://localhost:$vmess_port"
+     args="tunnel --edge-ip-version auto --no-autoupdate --protocol http2 --logfile boot.log --loglevel info --url http://localhost:$vmess_port"
     fi
     nohup ./"$(basename ${FILE_MAP[bot]})" $args >/dev/null 2>&1 &
-    sleep 2
-    pgrep -x "$(basename ${FILE_MAP[bot]})" > /dev/null && green "$(basename ${FILE_MAP[bot]}) is running" || { red "$(basename ${FILE_MAP[bot]}) is not running, restarting..."; pkill -x "$(basename ${FILE_MAP[bot]})" && nohup ./"$(basename ${FILE_MAP[bot]})" "${args}" >/dev/null 2>&1 & sleep 2; purple "$(basename ${FILE_MAP[bot]}) restarted"; }
+    sleep 10
+if pgrep -x "$(basename ${FILE_MAP[bot]})" > /dev/null; then
+    green "$(basename ${FILE_MAP[bot]}) Arog进程已启动"
+else
+    red "$(basename ${FILE_MAP[bot]}) Argo进程未启动, 重启中..."
+    pkill -x "$(basename ${FILE_MAP[bot]})"
+    nohup ./"$(basename ${FILE_MAP[bot]})" "${args}" >/dev/null 2>&1 &
+    sleep 5
+    purple "$(basename ${FILE_MAP[bot]}) Argo进程已重启"
 fi
-sleep 3
-rm -f "$(basename ${FILE_MAP[web]})"
+fi
+}
+if [ -z "$ARGO_DOMAIN" ] && ! ps aux | grep "[l]ocalhost:$vmess_port" > /dev/null; then
+ps aux | grep '[l]ocalhost' | awk '{print $2}' | xargs -r kill -9 > /dev/null 2>&1
+cfgo
+elif [ -n "$ARGO_DOMAIN" ] && ! ps aux | grep "[t]oken $ARGO_AUTH" > /dev/null; then
+ps aux | grep '[t]oken' | awk '{print $2}' | xargs -r kill -9 > /dev/null 2>&1
+cfgo
+else
+green "Arog进程已启动"
+fi
+sleep 2
+rm -f "$(basename ${FILE_MAP[web]})" "$(basename ${FILE_MAP[bot]})"
+if ! ps aux | grep '[c]onfig' > /dev/null; then
+red "主进程未启动，根据以下情况一一排查"
+yellow "1、网页端权限是否开启"
+yellow "2、端口是否设置错误(2个TCP、1个UDP)"
+yellow "3、尝试更换网页端3个端口并重装"
+yellow "4、当前Serv00服务器炸了？等会再试"
+exit
+fi
 }
 
 get_argodomain() {
   if [[ -n $ARGO_AUTH ]]; then
     echo "$ARGO_DOMAIN"
   else
-    local retry=0
-    local max_retries=6
-    local argodomain=""
-    while [[ $retry -lt $max_retries ]]; do
-      ((retry++))
-      argodomain=$(grep -oE 'https://[[:alnum:]+\.-]+\.trycloudflare\.com' boot.log | sed 's@https://@@') 
-      if [[ -n $argodomain ]]; then
-        break
-      fi
-      sleep 1
-    done
+    argodomain=$(grep -oE 'https://[[:alnum:]+\.-]+\.trycloudflare\.com' boot.log 2>/dev/null | sed 's@https://@@')
     echo "$argodomain"
   fi
 }
@@ -387,10 +302,9 @@ get_links(){
 argodomain=$(get_argodomain)
 echo -e "\e[1;32mArgo域名:\e[1;35m${argodomain}\e[0m\n"
 if [ -z ${argodomain} ]; then
-red "Argo域名生成失败，当前Argo节点不可用"
-yellow "可尝试卸载重置安装，或者只用CDN回源设置现实CDN优选IP"
+yellow "Argo临时域名暂时未生成，两个Argo节点不可用，其他未被墙的节点依旧可用"
 fi
-ISP=$(curl -s --max-time 2 https://speed.cloudflare.com/meta | awk -F\" '{print $26}' | sed -e 's/ /_/g' || echo "0")
+ISP=$(curl -s --max-time 5 https://speed.cloudflare.com/meta | awk -F\" '{print $26}' | sed -e 's/ /_/g' || echo "0")
 get_name() { if [ "$HOSTNAME" = "s1.ct8.pl" ]; then SERVER="CT8"; else SERVER=$(echo "$HOSTNAME" | cut -d '.' -f 1); fi; echo "$SERVER"; }
 NAME="$ISP-$(get_name)"
 rm -rf jh.txt
@@ -939,7 +853,7 @@ rules:
   
 EOF
 sleep 2
-rm -rf boot.log config.json sb.log core tunnel.yml tunnel.json fake_useragent_0.2.0.json
+rm -rf config.json sb.log core tunnel.yml tunnel.json fake_useragent_0.2.0.json
 }
 
 install_singbox() {
